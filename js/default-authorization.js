@@ -557,9 +557,11 @@ var _exportNames = {
   DOWNLOAD_FILES_EDITABLE_FIELDS: true,
   SUBSCRIPTION_INTERVAL_ENUM: true,
   SUBSCRIPTION_PLAN_STATUS_ENUM: true,
-  TEMPLATE_PRODUCT_TYPES: true
+  ADVANCED_PRODUCT_TYPE: true,
+  TEMPLATE_PRODUCT_TYPES: true,
+  DEFAULT_PRODUCT_TYPE_ID: true
 };
-exports.TEMPLATE_PRODUCT_TYPES = exports.SUBSCRIPTION_PLAN_STATUS_ENUM = exports.SUBSCRIPTION_INTERVAL_ENUM = exports.DOWNLOAD_FILES_EDITABLE_FIELDS = exports.DOWNLOAD_FILES_KEY_PATH = exports.DOWNLOAD_FILES_FAKE_DATA = exports.CSV_INTEGRATION_CURRENCY_TEMPLATE = exports.CSV_CURRENCY_TEMPLATE = exports.DEFAULT_PRICE_TEMPLATE_VALUE = exports.PRICE_TEMPLATE_OPTIONS = exports.PRICE_TEMPLATE_CURRENCY_CODE = exports.PRICE_TEMPLATE_AMOUNT = exports.PRICE_TEMPLATE_CURRENCY_SYMBOL = exports.MAX_PRODUCT_DIMENSION = exports.MAX_TOTAL_ORDER_PRICE = exports.INFINITE_INVENTORY = exports.INVENTORY_TYPE_INFINITE = exports.INVENTORY_TYPE_FINITE = exports.SHIPPING_METHODS = void 0;
+exports.DEFAULT_PRODUCT_TYPE_ID = exports.TEMPLATE_PRODUCT_TYPES = exports.ADVANCED_PRODUCT_TYPE = exports.SUBSCRIPTION_PLAN_STATUS_ENUM = exports.SUBSCRIPTION_INTERVAL_ENUM = exports.DOWNLOAD_FILES_EDITABLE_FIELDS = exports.DOWNLOAD_FILES_KEY_PATH = exports.DOWNLOAD_FILES_FAKE_DATA = exports.CSV_INTEGRATION_CURRENCY_TEMPLATE = exports.CSV_CURRENCY_TEMPLATE = exports.DEFAULT_PRICE_TEMPLATE_VALUE = exports.PRICE_TEMPLATE_OPTIONS = exports.PRICE_TEMPLATE_CURRENCY_CODE = exports.PRICE_TEMPLATE_AMOUNT = exports.PRICE_TEMPLATE_CURRENCY_SYMBOL = exports.MAX_PRODUCT_DIMENSION = exports.MAX_TOTAL_ORDER_PRICE = exports.INFINITE_INVENTORY = exports.INVENTORY_TYPE_INFINITE = exports.INVENTORY_TYPE_FINITE = exports.SHIPPING_METHODS = void 0;
 
 var _extends2 = _interopRequireDefault(__webpack_require__(3));
 
@@ -752,7 +754,7 @@ var DEFAULT_PRODUCT_TYPE_SKU_FIELDS = [{
 }];
 var PHYSICAL_PRODUCT_TYPE = {
   name: 'Physical',
-  slug: 'physical',
+  id: 'ff42fee0113744f693a764e3431a9cc2',
   fields: {
     product: [].concat(DEFAULT_PRODUCT_TYPE_PRODUCT_FIELDS, [{
       fieldSlug: 'shippable',
@@ -775,7 +777,7 @@ var PHYSICAL_PRODUCT_TYPE = {
 };
 var DIGITAL_PRODUCT_TYPE = {
   name: 'Digital',
-  slug: 'digital',
+  id: 'f22027db68002190aef89a4a2b7ac8a1',
   fields: {
     product: [].concat(DEFAULT_PRODUCT_TYPE_PRODUCT_FIELDS),
     sku: [].concat(DEFAULT_PRODUCT_TYPE_SKU_FIELDS, [{
@@ -786,14 +788,21 @@ var DIGITAL_PRODUCT_TYPE = {
 };
 var SERVICE_PRODUCT_TYPE = {
   name: 'Service',
-  slug: 'service',
+  id: 'c599e43b1a1c34d5a323aedf75d3adf6',
   fields: {
     product: [].concat(DEFAULT_PRODUCT_TYPE_PRODUCT_FIELDS),
     sku: [].concat(DEFAULT_PRODUCT_TYPE_SKU_FIELDS)
   }
 };
-var TEMPLATE_PRODUCT_TYPES = [PHYSICAL_PRODUCT_TYPE, DIGITAL_PRODUCT_TYPE, SERVICE_PRODUCT_TYPE];
+var ADVANCED_PRODUCT_TYPE = {
+  name: 'Advanced',
+  id: 'b6ccc1830db4b1babeb06a9ac5f6dd76'
+};
+exports.ADVANCED_PRODUCT_TYPE = ADVANCED_PRODUCT_TYPE;
+var TEMPLATE_PRODUCT_TYPES = [PHYSICAL_PRODUCT_TYPE, DIGITAL_PRODUCT_TYPE, SERVICE_PRODUCT_TYPE, ADVANCED_PRODUCT_TYPE];
 exports.TEMPLATE_PRODUCT_TYPES = TEMPLATE_PRODUCT_TYPES;
+var DEFAULT_PRODUCT_TYPE_ID = PHYSICAL_PRODUCT_TYPE.id;
+exports.DEFAULT_PRODUCT_TYPE_ID = DEFAULT_PRODUCT_TYPE_ID;
 
 /***/ }),
 /* 18 */
@@ -1224,7 +1233,7 @@ var _interopRequireDefault2 = __webpack_require__(0);
 var _taggedTemplateLiteral2 = _interopRequireDefault2(__webpack_require__(48));
 
 function _templateObject() {
-  var data = (0, _taggedTemplateLiteral2["default"])(["\n  query FetchCartInfo {\n    database @client {\n      commerceOrder {\n        statusFlags {\n          requiresShipping\n          isFreeOrder\n        }\n      }\n    }\n  }\n"]);
+  var data = (0, _taggedTemplateLiteral2["default"])(["\n  query FetchCartInfo {\n    database @client {\n      id\n      commerceOrder {\n        statusFlags {\n          requiresShipping\n          isFreeOrder\n        }\n      }\n    }\n  }\n"]);
 
   _templateObject = function _templateObject() {
     return data;
@@ -12395,9 +12404,14 @@ var applySkuBoundConditionalVisibility = function applySkuBoundConditionalVisibi
       data[skuField[1]] = val;
       return data;
     }
+  }); // Need to flatten the inventory quantity to allow cond vis bound to inventory counts
+
+  var inventoryQuantity = newSkuItem.inventory.type === 'infinite' ? null : newSkuItem.inventory.quantity;
+  var itemWithFlattenedInventory = (0, _extends2["default"])({}, newSkuItem, {
+    ecSkuInventoryQuantity: inventoryQuantity
   });
   var isVisible = (0, _ConditionUtils.testCondition)({
-    item: newSkuItem,
+    item: itemWithFlattenedInventory,
     contextItem: null,
     timezone: timezone,
     condition: {
@@ -24188,7 +24202,7 @@ function _templateObject2() {
 }
 
 function _templateObject() {
-  var data = (0, _taggedTemplateLiteral2["default"])(["\n  query FetchShippingMethods {\n    database {\n      commerceOrder {\n        id\n        availableShippingMethods {\n          id\n          name\n          description\n          price {\n            value\n          }\n        }\n      }\n    }\n  }\n"]);
+  var data = (0, _taggedTemplateLiteral2["default"])(["\n  query FetchShippingMethods {\n    database {\n      id\n      commerceOrder {\n        id\n        availableShippingMethods {\n          id\n          name\n          description\n          price {\n            value\n          }\n        }\n      }\n    }\n  }\n"]);
 
   _templateObject = function _templateObject() {
     return data;
@@ -33916,6 +33930,27 @@ var SharedConfig = function () {
         collectionId: null // Will be populated with correct value at creation.
 
       }
+    }, {
+      name: 'Product type',
+      slug: 'ec-product-type',
+      type: 'Option',
+      required: false,
+      editable: true,
+      validations: {
+        options: [{
+          id: 'ff42fee0113744f693a764e3431a9cc2',
+          name: 'Physical'
+        }, {
+          id: 'f22027db68002190aef89a4a2b7ac8a1',
+          name: 'Digital'
+        }, {
+          id: 'c599e43b1a1c34d5a323aedf75d3adf6',
+          name: 'Service'
+        }, {
+          id: 'b6ccc1830db4b1babeb06a9ac5f6dd76',
+          name: 'Advanced'
+        }]
+      }
     }],
     sku: [{
       name: 'SKU Values',
@@ -40348,7 +40383,6 @@ var SharedConfig = function () {
     unknown: 'unknown'
   };
   api.ANALYTICS_SESSION_POLLING_FREQUENCY = 30000;
-  api.TEMPLATE_GENERATION_TEMPLATE_NAME = 'Templatized Base Theme';
   api.NUX_TEMPLATE_NAME = 'NUX Guided Creation Template';
   api.blankTemplate = {
     name: 'Blank Site',
@@ -40404,6 +40438,7 @@ var _defineProperty2 = _interopRequireDefault(__webpack_require__(13));
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.zipCat = zipCat;
 exports.entries = exports.values = exports.mapValues = exports.traverseObjectResults = exports.traverseResults = exports.traverseOptions = exports.optionToArray = exports.extractFunctionFromResult = exports.extractFunctionFromOption = exports.extractArray = exports.extractBool = exports.tap = exports.errToOption = exports.okToOption = exports.noneToErr = exports.constantNone = exports.set = exports.over = exports.view = exports.lensProp = exports.lens = exports.split = exports.replace = exports.match = exports.test = exports.flatMap = exports.length = exports.tail = exports.last = exports.head = exports.parseInt = exports.parseIntWithRadix = exports.max = exports.inc = exports.add = exports.constantIdentity = exports.append = exports.concatTo = exports.concat = exports.objOf = exports.reduceObject = exports.reduce = exports.filter = exports.mapArray = exports.map = exports.zip = exports.zipWith = exports.pipe = exports.find = exports.lookupWithDefault = exports.lookup = exports.pickBy = exports.pick = exports.omit = exports.union = exports.adjust = exports.dissoc = exports.assoc = exports.prop = exports.has = exports.when = exports.both = exports.either = exports.notNil = exports.isNil = exports.notEqual = exports.equals = exports.resultToBool = exports.optionToBool = exports.allPass = exports.anyPass = exports.complement = exports.not = exports.constantTrue = exports.constantFalse = exports.fix = exports.substitution = exports.thrush = exports.flip = exports.blackbird = exports.compose = exports.constant = exports.identity = exports.emptyObject = exports.emptyArray = exports.objectKeys = void 0;
 
 var _Const = __webpack_require__(622);
@@ -40884,6 +40919,67 @@ var zip = zipWith(function (x) {
   };
 });
 exports.zip = zip;
+
+function getMinLength(arrays) {
+  if (arrays.length === 0) return 0;
+  if (arrays.length === 1) return arrays[0].length;
+  var min = arrays[0].length;
+
+  for (var i = 1, len = arrays.length; i < len; i++) {
+    var arr_len = arrays[i].length;
+    if (arr_len < min) min = arr_len;
+  }
+
+  return min;
+}
+/*
+ * Usage:
+ *  const multiply = (a: number) => (b: number) => a * b;
+ *  const arrays = [
+ *    [1, 2, 3, 4],
+ *    [5, 6],
+ *    [7, 8, 9],
+ *  ];
+ *  const result = zipCat(multiply)(arrays); // => [35, 96, 3, 4, 9]
+ */
+
+
+function zipCat(fn) {
+  return function zipCat_inner(arrays) {
+    // Find the length of the shortest array to know the max number of zip items.
+    var zipLength = getMinLength(arrays); // Create a single array reference to store our items into.
+
+    var rv = []; // For each array
+
+    for (var i = 0, len = arrays.length; i < len; i++) {
+      var array = arrays[i]; // For each index in the current array
+
+      for (var j = 0, array_len = array.length; j < array_len; j++) {
+        var item = array[j]; // For each index that falls in the zip range
+
+        if (j < zipLength) {
+          var existing = rv[j]; // Check if we have a previously calculated value for this zip index.
+          // If we do then we call the zip fn on the existing result and the current item,
+          // then save it back at the zip index.
+
+          if (typeof existing !== 'undefined') {
+            rv[j] = fn(existing)(item);
+          } // If we don't then we save the current item at the zip index.
+          else {
+              rv[j] = item;
+            }
+        } // If the index falls outside the zip range, then push the item onto the
+        // end of result array. We use `push` here to ensure it is inserted after
+        // the zip range indices.
+        else {
+            rv.push(item);
+          }
+      }
+    }
+
+    return rv;
+  };
+}
 
 var map = function map(f) {
   return function (xs) {
@@ -61297,6 +61393,12 @@ var updateSkuBindings = function updateSkuBindings(binding, node, newSkuItem) {
       }
     }
   }
+
+  if (binding.from === 'ecSkuInventoryQuantity') {
+    var inventoryQuantity = (0, _get["default"])(newSkuItem, 'inventory.type') === 'infinite' ? null : (0, _get["default"])(newSkuItem, 'inventory.quantity');
+    node[binding.to === 'innerHTML' ? 'innerText' : binding.to] = inventoryQuantity;
+    updateTextNodeVisibility(node);
+  }
 };
 
 var handleAtcOptionSelectLoad = function handleAtcOptionSelectLoad(event, apolloClient, stripeStore) {
@@ -66808,7 +66910,8 @@ var isDateStringWithoutTime = function isDateStringWithoutTime(dateString) {
 
 var toGraphQLSlug = function toGraphQLSlug(originalSlug) {
   var slug = handleId(originalSlug);
-  return slug === 'id' || (0, _SlugUtils.isDynamoGraphQLFieldSlug)(slug) ? slug : (0, _SlugUtils.fieldSlug)(slug);
+  return slug === 'id' || (0, _SlugUtils.isDynamoGraphQLFieldSlug)(slug) || // Don't want to namespace field slug when retrieving product inventory data
+  slug === 'ecSkuInventoryQuantity' ? slug : (0, _SlugUtils.fieldSlug)(slug);
 };
 
 var handleId = function handleId(slug) {
